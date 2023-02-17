@@ -15,6 +15,12 @@ pub struct DroplessArena<T> {
     chunks: RefCell<Vec<Chunk<T>>>,
 }
 
+impl<T> Default for DroplessArena<T> {
+    fn default() -> DroplessArena<T> {
+        DroplessArena::new()
+    }
+}
+
 impl<T> DroplessArena<T> {
     unsafe fn alloc_raw_slice(&self, len: usize) -> *mut T {
         self.ensure_capacity(len);
