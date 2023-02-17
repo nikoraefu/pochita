@@ -2,7 +2,7 @@
 name = "pochita"
 version = "0.1.1"
 edition = "2021"
-description = "Arena allocator."
+description = "A allocation arena for Rust."
 license = "MIT/Apache-2.0"
 repository = "https://github.com/nikoraefu/pochita"
 categories = ["memory-management"]

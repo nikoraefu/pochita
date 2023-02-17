@@ -1,4 +1,6 @@
-# pochita
+# `pochita`
+
+*A allocation arena for Rust.*
 
 ## Example
 

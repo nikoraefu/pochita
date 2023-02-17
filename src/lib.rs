@@ -1,4 +1,5 @@
-#![allow(clippy::new_without_default, clippy::mut_from_ref, unstable_name_collisions)]
+#![doc = include_str!("../README.md")]
+#![allow(clippy::mut_from_ref, unstable_name_collisions)]
 
 use std::cell::{Cell, RefCell};
 use std::mem::MaybeUninit;
