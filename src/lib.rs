@@ -64,7 +64,7 @@ impl<T> DroplessArena<T> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use pochita::DroplessArena;
     ///
     /// let arena = DroplessArena::<i32>::new();
@@ -86,7 +86,7 @@ impl<T> DroplessArena<T> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use pochita::DroplessArena;
     ///
     /// let arena = DroplessArena::<i32>::new();
@@ -106,7 +106,7 @@ impl<T> DroplessArena<T> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use pochita::DroplessArena;
     ///
     /// let arena = DroplessArena::new();
@@ -136,7 +136,7 @@ impl<T> DroplessArena<T> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use pochita::DroplessArena;
     ///
     /// let arena = DroplessArena::<i32>::new();
@@ -196,7 +196,7 @@ impl<T: Clone> DroplessArena<T> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use pochita::DroplessArena;
     ///
     /// let arena = DroplessArena::new();
@@ -226,7 +226,7 @@ impl DroplessArena<u8> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```rust
     /// use pochita::DroplessArena;
     ///
     /// let arena = DroplessArena::new();
