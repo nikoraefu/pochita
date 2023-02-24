@@ -5,7 +5,7 @@ edition = "2021"
 description = "A allocation arena for Rust."
 license = "MIT/Apache-2.0"
 repository = "https://github.com/nikoraefu/pochita"
-categories = ["memory-management"]
+categories = ["data-structures", "memory-management", "rust-patterns"]
 keywords = ["arena"]
 
 [features]
