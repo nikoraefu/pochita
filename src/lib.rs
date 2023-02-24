@@ -31,22 +31,18 @@ impl<T> DroplessArena<T> {
 
         dst
     }
-
-    fn can_allocate(&self, additional: usize) -> bool {
-        let available_bytes = self.end.get().addr() - self.start.get().addr();
-        let additional_bytes = additional.checked_mul(std::mem::size_of::<T>()).unwrap();
-        available_bytes >= additional_bytes
-    }
-
-    fn ensure_capacity(&self, additional: usize) {
-        if !self.can_allocate(additional) {
-            self.reserve(additional);
-            debug_assert!(self.can_allocate(additional));
-        }
-    }
 }
 
 impl<T> DroplessArena<T> {
+    /// Creates a new, empty arena that can be used to allocate objects of type `T`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pochita::DroplessArena;
+    ///
+    /// let arena: DroplessArena<i32> = DroplessArena::new();
+    /// ```
     pub fn new() -> DroplessArena<T> {
         assert!(std::mem::size_of::<T>() != 0);
 
@@ -57,6 +53,61 @@ impl<T> DroplessArena<T> {
         }
     }
 
+    /// Determines whether the arena has enough free space to allocate an object of
+    /// type `T` with the specified additional size, in bytes.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pochita::DroplessArena;
+    ///
+    /// let arena = DroplessArena::<i32>::new();
+    /// assert_eq!(arena.can_allocate(10), false);
+    /// arena.ensure_capacity(10);
+    /// assert_eq!(arena.can_allocate(10), true);
+    /// ```
+    pub fn can_allocate(&self, additional: usize) -> bool {
+        let available_bytes = self.end.get().addr() - self.start.get().addr();
+        let additional_bytes = additional.checked_mul(std::mem::size_of::<T>()).unwrap();
+        available_bytes >= additional_bytes
+    }
+
+    /// Ensures that the arena has enough free space to allocate an object of type
+    /// `T` with the specified additional size, in bytes.
+    ///
+    /// If the arena does not have enough free space, this method will reserve
+    /// additional space in the arena to meet the allocation requirements.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pochita::DroplessArena;
+    ///
+    /// let arena = DroplessArena::<i32>::new();
+    /// assert_eq!(arena.can_allocate(10), false);
+    /// arena.ensure_capacity(10);
+    /// assert_eq!(arena.can_allocate(10), true);
+    /// ```
+    pub fn ensure_capacity(&self, additional: usize) {
+        if !self.can_allocate(additional) {
+            self.reserve(additional);
+            debug_assert!(self.can_allocate(additional));
+        }
+    }
+
+    /// Allocates a new object of type `T` in the arena and initializes it with the
+    /// value of the `src` argument.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pochita::DroplessArena;
+    ///
+    /// let arena = DroplessArena::new();
+    /// let x = arena.alloc(42);
+    ///
+    /// assert_eq!(*x, 42);
+    /// ```
     pub fn alloc(&self, src: T) -> &mut T {
         if self.start == self.end {
             self.reserve(1);
@@ -70,6 +121,21 @@ impl<T> DroplessArena<T> {
         }
     }
 
+    /// Reserves additional space in the arena to meet the allocation requirements
+    /// of an object of type `T` with the specified additional size, in bytes.
+    ///
+    /// This method will allocate a new chunk of memory to store objects if the
+    /// arena is full, and update the arena's start and end pointers to reflect
+    /// the new chunk.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pochita::DroplessArena;
+    ///
+    /// let arena = DroplessArena::<i32>::new();
+    /// arena.reserve(10);
+    /// ```
     #[cold]
     #[inline(never)]
     pub fn reserve(&self, additional: usize) {
@@ -89,6 +155,20 @@ impl<T> DroplessArena<T> {
 }
 
 impl<T: Copy> DroplessArena<T> {
+    /// Allocates a new slice of type `T` in the arena and initializes it with a
+    /// copy of the contents of the `src` slice passed as an argument.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use pochita::DroplessArena;
+    ///
+    /// let arena = DroplessArena::new();
+    /// let src = [1, 2, 3];
+    /// let dst = arena.alloc_slice_copy(&src);
+    ///
+    /// assert_eq!(src, dst);
+    /// ```
     pub fn alloc_slice_copy(&self, src: &[T]) -> &mut [T] {
         let len = src.len();
 
@@ -105,6 +185,18 @@ impl<T: Copy> DroplessArena<T> {
 }
 
 impl<T: Clone> DroplessArena<T> {
+    /// Allocates a slice of objects of type `T` in this arena and initializes
+    /// them with a clone of the values in the provided slice.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pochita::DroplessArena;
+    ///
+    /// let arena = DroplessArena::new();
+    /// let slice = arena.alloc_slice_clone(&[1, 2, 3]);
+    /// assert_eq!(slice, &[1, 2, 3]);
+    /// ```
     pub fn alloc_slice_clone(&self, src: &[T]) -> &mut [T] {
         let len = src.len();
 
@@ -117,12 +209,26 @@ impl<T: Clone> DroplessArena<T> {
             for (index, item) in src.iter().cloned().enumerate() {
                 dst.add(index).write(item);
             }
-            std::slice::from_raw_parts_mut(dst, src.len())
+            std::slice::from_raw_parts_mut(dst, len)
         }
     }
 }
 
 impl DroplessArena<u8> {
+    /// Allocates a new string in the arena and initializes it with a copy of the
+    /// contents of the `src` string passed as an argument.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pochita::DroplessArena;
+    ///
+    /// let arena = DroplessArena::new();
+    /// let src = "hello, world!";
+    /// let dst = arena.alloc_str(src);
+    ///
+    /// assert_eq!(src, dst);
+    /// ```
     pub fn alloc_str(&self, src: &str) -> &mut str {
         let bytes = self.alloc_slice_copy(src.as_bytes());
         unsafe { std::str::from_utf8_unchecked_mut(bytes) }
