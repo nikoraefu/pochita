@@ -242,8 +242,12 @@ struct Chunk<T> {
 impl<T> Chunk<T> {
     unsafe fn new(capacity: usize) -> Chunk<T> {
         // TODO: replace with `Box::new_uninit_slice` once https://github.com/rust-lang/rust/issues/63291 is stabilized.
-        let uninit_slice = Box::into_raw(box_uninit_slice(capacity));
-        Chunk { storage: NonNull::new_unchecked(uninit_slice) }
+        let uninit_slice = {
+            let mut uninit_slice = Vec::with_capacity(capacity);
+            uninit_slice.set_len(capacity);
+            uninit_slice.into_boxed_slice()
+        };
+        Chunk { storage: NonNull::new_unchecked(Box::into_raw(uninit_slice)) }
     }
 
     fn len(&self) -> usize {
@@ -263,14 +267,6 @@ impl<T> Drop for Chunk<T> {
     fn drop(&mut self) {
         unsafe { Box::from_raw(self.storage.as_mut()) };
     }
-}
-
-fn box_uninit_slice<T>(capacity: usize) -> Box<[MaybeUninit<T>]> {
-    let mut uninit_slice = Vec::with_capacity(capacity);
-    unsafe {
-        uninit_slice.set_len(capacity);
-    }
-    uninit_slice.into_boxed_slice()
 }
 
 #[cfg(test)]
