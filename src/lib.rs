@@ -10,10 +10,16 @@ use sptr::Strict;
 const PAGE: usize = 4096;
 const HUGE_PAGE: usize = 2 * 1024 * 1024;
 
+#[cfg(not(feature = "smallvec"))]
+type ChunkList<T> = Vec<Chunk<T>>;
+
+#[cfg(feature = "smallvec")]
+type ChunkList<T> = smallvec::SmallVec<[Chunk<T>; 6]>;
+
 pub struct DroplessArena<T> {
     start: Cell<*mut T>,
     end: Cell<*mut T>,
-    chunks: RefCell<Vec<Chunk<T>>>,
+    chunks: RefCell<ChunkList<T>>,
 }
 
 impl<T> Default for DroplessArena<T> {
@@ -49,7 +55,7 @@ impl<T> DroplessArena<T> {
         DroplessArena {
             start: Cell::new(std::ptr::null_mut()),
             end: Cell::new(std::ptr::null_mut()),
-            chunks: Vec::new().into(),
+            chunks: ChunkList::new().into(),
         }
     }
 

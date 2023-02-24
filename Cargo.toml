@@ -8,5 +8,9 @@ repository = "https://github.com/nikoraefu/pochita"
 categories = ["memory-management"]
 keywords = ["arena"]
 
+[features]
+smallvec = ["dep:smallvec"]
+
 [dependencies]
+smallvec = { version = "1.10.0", features = ["union"], optional = true }
 sptr = "0.3"
