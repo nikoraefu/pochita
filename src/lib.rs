@@ -59,6 +59,11 @@ impl<T> DroplessArena<T> {
         }
     }
 
+    /// Reset this allocator.
+    pub fn reset(&mut self) {
+        *self = DroplessArena::new();
+    }
+
     /// Determines whether the arena has enough free space to allocate an object of
     /// type `T` with the specified additional size, in bytes.
     ///
@@ -311,5 +316,15 @@ mod tests {
 
         assert_eq!(arena.alloc_str("Makima"), "Makima");
         assert_eq!(arena.alloc_str("Pochita"), "Pochita");
+    }
+
+    #[test]
+    fn reset() {
+        let mut arena = DroplessArena::new();
+
+        arena.alloc_str("Pochita");
+        assert!(arena.can_allocate(1));
+        arena.reset();
+        assert!(!arena.can_allocate(1));
     }
 }
