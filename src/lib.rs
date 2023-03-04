@@ -65,7 +65,7 @@ impl<T> DroplessArena<T> {
     }
 
     /// Determines whether the arena has enough free space to allocate an object of
-    /// type `T` with the specified additional size, in bytes.
+    /// type `T` with the specified additional size.
     ///
     /// # Example
     ///
@@ -84,7 +84,7 @@ impl<T> DroplessArena<T> {
     }
 
     /// Ensures that the arena has enough free space to allocate an object of type
-    /// `T` with the specified additional size, in bytes.
+    /// `T` with the specified additional size.
     ///
     /// If the arena does not have enough free space, this method will reserve
     /// additional space in the arena to meet the allocation requirements.
@@ -133,7 +133,7 @@ impl<T> DroplessArena<T> {
     }
 
     /// Reserves additional space in the arena to meet the allocation requirements
-    /// of an object of type `T` with the specified additional size, in bytes.
+    /// of an object of type `T` with the specified additional size.
     ///
     /// This method will allocate a new chunk of memory to store objects if the
     /// arena is full, and update the arena's start and end pointers to reflect
