@@ -18,7 +18,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: Swatinem/rust-cache@v2
-
+    
+    - name: Install Rust toolchain
+      run: |
+          rustup update --no-self-update nightly
+          rustup component add rustfmt clippy
+          
     - name: Build
       run: cargo build
     
@@ -27,3 +32,6 @@ jobs:
     
     - name: Run clippy
       run: cargo clippy
+      
+    - name: Run fmt
+      run: cargo fmt --check
