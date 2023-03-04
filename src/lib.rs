@@ -132,6 +132,34 @@ impl<T> DroplessArena<T> {
         }
     }
 
+    /// Allocates space in the arena to hold objects of type `T` from an iterator.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use pochita::DroplessArena;
+    ///
+    /// let arena = DroplessArena::new();
+    /// assert_eq!(arena.alloc_from_iter(0..3), &[0, 1, 2]);
+    /// ```
+    pub fn alloc_from_iter(&self, iter: impl Iterator<Item = T>) -> &mut [T] {
+        let mut values: Vec<T> = iter.collect();
+        let len = values.len();
+
+        if len == 0 {
+            return &mut [];
+        }
+
+        unsafe {
+            let dst = self.alloc_raw_slice(len);
+
+            values.as_ptr().copy_to_nonoverlapping(dst, len);
+            values.set_len(0);
+
+            std::slice::from_raw_parts_mut(dst, len)
+        }
+    }
+
     /// Reserves additional space in the arena to meet the allocation requirements
     /// of an object of type `T` with the specified additional size.
     ///
@@ -289,6 +317,13 @@ mod tests {
         let arena = DroplessArena::new();
 
         assert_eq!(*arena.alloc("Pochita"), "Pochita");
+    }
+
+    #[test]
+    fn alloc_from_iter() {
+        let arena = DroplessArena::new();
+
+        assert_eq!(arena.alloc_from_iter(0..3), &[0, 1, 2]);
     }
 
     #[test]
