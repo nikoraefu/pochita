@@ -132,7 +132,9 @@ impl<T> DroplessArena<T> {
         }
     }
 
-    /// Allocates space in the arena to hold objects of type `T` from an iterator.
+    /// Allocates a new slice of type `T` with the elements initialized from the
+    /// supplied iterator into the arena, and returns a mutable reference to the
+    /// allocated slice.
     ///
     /// # Example
     ///
@@ -140,9 +142,9 @@ impl<T> DroplessArena<T> {
     /// use pochita::DroplessArena;
     ///
     /// let arena = DroplessArena::new();
-    /// assert_eq!(arena.alloc_from_iter(0..3), &[0, 1, 2]);
+    /// assert_eq!(arena.alloc_slice_from_iter(0..3), &[0, 1, 2]);
     /// ```
-    pub fn alloc_from_iter(&self, iter: impl Iterator<Item = T>) -> &mut [T] {
+    pub fn alloc_slice_from_iter(&self, iter: impl Iterator<Item = T>) -> &mut [T] {
         let mut values: Vec<T> = iter.collect();
         let len = values.len();
 
@@ -323,7 +325,7 @@ mod tests {
     fn alloc_from_iter() {
         let arena = DroplessArena::new();
 
-        assert_eq!(arena.alloc_from_iter(0..3), &[0, 1, 2]);
+        assert_eq!(arena.alloc_slice_from_iter(0..3), &[0, 1, 2]);
     }
 
     #[test]
